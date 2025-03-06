@@ -1,0 +1,25 @@
+<% title= "home" %>
+
+<h1 class="text-4xl font-bold mb-5">Shikaku Game</h1>
+
+<div class="bg-white p-5 rounded-lg shadow-lg">
+  <h2 class="text-xl font-semibold mb-3">Select Grid Size</h2>
+
+  <div class="grid grid-cols-3 gap-3 mb-4">
+    <% [5, 7, 10, 15, 20, 25].forEach(size => { %>
+    <button
+      class="size-btn bg-white border border-black font-bold px-4 py-2 rounded hover:bg-gray-400"
+      data-size="<%= size %>"
+    >
+      <%= size %> x <%= size %>
+    </button>
+    <% }); %>
+  </div>
+
+  <button
+    id="playButton"
+    class="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600"
+  >
+    Play
+  </button>
+</div>

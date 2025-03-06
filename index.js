@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import app from "./src/app.js";
 import { initializeSocket } from "./src/socket.js";
+// import redisClient from "./src/config/redis.js";
 
 const startServer = async () => {
   try {
