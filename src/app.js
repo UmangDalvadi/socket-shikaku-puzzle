@@ -6,6 +6,8 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import expressLayouts from "express-ejs-layouts";
 import { generateShikakuBoard } from "./controllers/generateGrid.js";
+import GameData from "./models/game.model.js";
+import os from "os";
 
 dotenv.config();
 const app = express();
@@ -41,6 +43,17 @@ app.get("/play-ground", (req, res) => {
   console.log(board.map((row) => row.join(" ")).join("\n"));
   console.log("=============================================");
   res.render("game/game", { board, size });
+});
+
+app.post("/submit-game", async (req, res) => {
+  const { hostname, selectedAreas } = req.body;
+  try {
+    const gameData = new GameData({ hostname: os.hostname(), selectedAreas });
+    await gameData.save();
+    res.status(200).json({ message: "Game data saved successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error saving game data", error });
+  }
 });
 
 app.get("/health", (req, res) => {

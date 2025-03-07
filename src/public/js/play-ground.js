@@ -1,3 +1,5 @@
+const socket = io();
+
 document.addEventListener("DOMContentLoaded", function () {
   const canvas = document.getElementById("shikakuCanvas");
   const board = JSON.parse(canvas.getAttribute("data-board")); // Retrieve board data safely
@@ -197,6 +199,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     }
+
+    console.log(selectedAreas);
+
+    fetch("/submit-game", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        selectedAreas,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
+        } else {
+          alert("Error:🛑 Failed to save game data.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error:🛑 Failed to save game data.");
+      });
 
     alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
   });
