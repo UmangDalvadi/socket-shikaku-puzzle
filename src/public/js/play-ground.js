@@ -2,13 +2,12 @@ const socket = io();
 
 document.addEventListener("DOMContentLoaded", function () {
   const canvas = document.getElementById("shikakuCanvas");
-  const board = JSON.parse(canvas.getAttribute("data-board")); // Retrieve board data safely
+  const board = JSON.parse(canvas.getAttribute("data-board"));
 
   const rows = board.length;
   const cols = board[0].length;
   const cellSize = 40;
-  const padding = 1; // Padding to avoid overlap
-
+  const padding = 1;
   const ctx = canvas.getContext("2d");
 
   canvas.width = cols * cellSize;
@@ -17,10 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let isDragging = false;
   let startX, startY, endX, endY;
 
-  // Store selected regions
   let selectedAreas = [];
 
-  // Function to check if two regions overlap
   function isOverlapping(area1, area2) {
     return !(
       area1.x2 < area2.x1 ||
@@ -30,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // Function to remove overlapping areas
   function removeOverlappingAreas(newArea) {
     selectedAreas = selectedAreas.filter(
       (area) => !isOverlapping(area, newArea)
@@ -61,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Draw stored selected regions as blue-bordered rectangles with padding
     ctx.strokeStyle = "blue";
     ctx.lineWidth = 3;
 
@@ -73,6 +68,8 @@ document.addEventListener("DOMContentLoaded", function () {
         (y2 - y1 + 1) * cellSize - 2 * padding
       );
     });
+
+    socket.emit("save-selected-area", selectedAreas);
   }
 
   // Convert pixel coordinates to grid position
@@ -83,7 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return { x, y };
   }
 
-  // Mouse down event (Start selection)
   canvas.addEventListener("mousedown", (event) => {
     const pos = getGridPosition(event);
     startX = pos.x;
@@ -91,7 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
     isDragging = true;
   });
 
-  // Mouse move event (Update selection)
   canvas.addEventListener("mousemove", (event) => {
     if (!isDragging) return;
 
@@ -112,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   });
 
-  // Mouse up event (Finish selection)
   canvas.addEventListener("mouseup", () => {
     isDragging = false;
 
@@ -200,38 +194,44 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    console.log(selectedAreas);
+    // console.log(selectedAreas);
 
-    fetch("/submit-game", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        selectedAreas,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message) {
-          alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
-        } else {
-          alert("Error:🛑 Failed to save game data.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Error:🛑 Failed to save game data.");
-      });
+    socket.emit("submit-game", (response) => {
+      if (response.message) {
+        alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
+      } else {
+        alert(response.error || "🛑 Failed to save game data.");
+      }
+    });
+
+    // fetch("/submit-game", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     selectedAreas,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     if (data.message) {
+    //       alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
+    //     } else {
+    //       alert("Error:🛑 Failed to save game data.");
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //     alert("Error:🛑 Failed to save game data.");
+    //   });
 
     alert("🎉 Congratulations! Puzzle solved successfully. 🎉");
   });
 
-  // New Puzzle button functionality ============================================================
   document.getElementById("newPuzzle").addEventListener("click", () => {
     window.location.reload();
   });
 
-  // Initial draw
   drawGrid();
 });

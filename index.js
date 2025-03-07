@@ -1,8 +1,8 @@
 import { createServer } from "http";
 import app from "./src/app.js";
 import connectToDb from "./src/config/db.js";
-// import { initializeSocket } from "./src/socket.js";
-// import redisClient from "./src/config/redis.js";
+import { initializeSocket } from "./src/socket.js";
+import redisClient from "./src/config/redis.js";
 
 const startServer = async () => {
   try {
@@ -10,7 +10,7 @@ const startServer = async () => {
 
     await connectToDb();
 
-    // initializeSocket(server);
+    initializeSocket(server);
 
     server.listen(process.env.PORT, () => {
       console.log(
