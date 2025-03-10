@@ -56,8 +56,13 @@ const initializeSocket = (server) => {
       }
     });
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log("🔴 Client disconnected:", socket.id);
+
+      const hostname = os.hostname();
+      const key = `selectedAreas:${hostname}`;
+
+      await redisClient.del(key);
     });
   });
 };
